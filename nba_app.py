@@ -58,7 +58,7 @@ def open_outlier_window():
     img_label.image = photo
     img_label.pack(pady=10)
 
-    # Show top 20 players
+    # Show outlier info
     text = tk.Text(out_win, height=12, width=90)
     text.insert(tk.END, top20_df.to_string(index=False))
     text.pack()
@@ -88,23 +88,16 @@ def open_prediction_window(team_a, team_b):
     ra_df = team_season[team_season['team'] == team_a]
     rb_df = team_season[team_season['team'] == team_b]
 
-    # Check if any data exists
     if ra_df.empty or rb_df.empty:
         tk.messagebox.showerror("Error", "Selected team data not available.")
         return
 
-    # Take the average of features over all seasons
     feature_cols = [c for c in team_season.columns if c not in ['team','year','leag','won','lost','win_pct']]
     ra_avg = ra_df[feature_cols].mean()
     rb_avg = rb_df[feature_cols].mean()
 
-    # Compute diff features
     diff = (ra_avg - rb_avg).to_frame().T
-
-    # Add 'diff_' prefix to match scaler columns
     diff.columns = ['diff_' + str(c) for c in diff.columns]
-
-    # Scale
     diff_scaled = scaler.transform(diff)
 
     # Predict probability
